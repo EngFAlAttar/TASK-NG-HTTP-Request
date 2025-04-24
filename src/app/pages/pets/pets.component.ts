@@ -2,7 +2,9 @@ import { Component, inject } from '@angular/core';
 import { PetsHeaderComponent } from '../../components/pets-header/pets-header.component';
 import { PetsListComponent } from '../../components/pets-list/pets-list.component';
 import { pets } from '../../../data/pets';
-import { HttpClient } from '@angular/common/http';
+import { PetService } from '../../shared/services/pet.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { PetModel } from '../../shared/models/pet-model.model';
 
 @Component({
   selector: 'app-pets',
@@ -13,17 +15,20 @@ import { HttpClient } from '@angular/common/http';
 })
 export class PetsComponent {
   query = '';
-  allPets = pets;
 
-  private http = inject(HttpClient);
+  private petService = inject(PetService);
+
+  allPets = toSignal(this.petService.getAllPets(), {initialValue: []})
   
   setQuery(query: string) {
     this.query = query;
   }
 
   get filteredPets() {
-    return this.allPets.filter((pet) =>
+    return this.allPets().filter((pet) =>
       pet.name.toLowerCase().includes(this.query.toLowerCase())
     );
   }
 }
+
+
